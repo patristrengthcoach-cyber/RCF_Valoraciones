@@ -88,6 +88,7 @@ a{color:inherit;}
 /* ---------- body map ---------- */
 .bodymap-wrap{display:flex;justify-content:center;}
 .bodymap-wrap svg{width:100%;max-width:640px;height:auto;}
+.bm-figure-base{fill:var(--panel-2);stroke:var(--border);stroke-width:2.5;}
 .bm-card{font-family:'Inter';}
 .bm-card .bm-zone{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);font-weight:700;}
 .bm-card .bm-val{font-family:'Big Shoulders Display';font-weight:800;font-size:19px;line-height:1;margin-top:2px;}
@@ -263,11 +264,6 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border-soft);
     </div>
     <div class="filter-bar" id="filterBar"></div>
     <button class="back-btn" id="backBtn">← Volver al equipo</button>
-    <div class="topbar-meta">
-      <div class="meta-item"><div class="k">Categoría</div><div class="v" id="metaCategoria">—</div></div>
-      <div class="meta-item"><div class="k">Test antropometría</div><div class="v" id="metaAntroDate">—</div></div>
-      <div class="meta-item"><div class="k">Test VALD</div><div class="v" id="metaValdDate">—</div></div>
-    </div>
   </div>
 </div>
 
@@ -302,8 +298,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border-soft);
             <tr>
               <th data-key="rank" style="width:30px;"></th>
               <th data-key="name">Jugador</th>
-              <th data-key="peso">Peso <span class="arrow"></span></th>
-              <th data-key="power">Pot. pico CMJ <span class="est-tag">est.</span> <span class="arrow"></span></th>
+              <th data-key="power">Potencia CMJ <span class="est-tag">est.</span> <span class="arrow"></span></th>
               <th data-key="jump">Salto CMJ <span class="arrow"></span></th>
               <th data-key="rsi">RSI-mod <span class="arrow"></span></th>
               <th data-key="testDate">Último test</th>
@@ -4440,20 +4435,6 @@ const VALD_LEG_METRICS = [
   { key: 'landingForceAsymMag', sideKey: 'landingForceAsymSide', label: 'Fuerza de aterrizaje' },
 ];
 
-// body silhouette hotspot layout — SVG viewBox is 0 0 640 520
-const BODY_ZONES = [
-  { key: 'brazo_relajado',      dotX: 293, dotY: 100, side: 'left',  labelY: 40  },
-  { key: 'brazo_90',            dotX: 288, dotY: 140, side: 'left',  labelY: 108 },
-  { key: 'antebrazo',           dotX: 285, dotY: 190, side: 'left',  labelY: 176 },
-  { key: 'rot_interna_cadera',  dotX: 300, dotY: 197, side: 'left',  labelY: 244 },
-  { key: 'muslo',               dotX: 300, dotY: 260, side: 'left',  labelY: 312 },
-  { key: 'muslo_medio',         dotX: 344, dotY: 300, side: 'right', labelY: 40  },
-  { key: 'rot_externa_cadera',  dotX: 339, dotY: 197, side: 'right', labelY: 108 },
-  { key: 'pierna',              dotX: 347, dotY: 380, side: 'right', labelY: 176 },
-  { key: 'dorsiflexion',        dotX: 349, dotY: 432, side: 'right', labelY: 244 },
-  { key: 'tobillo',             dotX: 349, dotY: 452, side: 'right', labelY: 312 },
-];
-
 let radarChartInst = null;
 let trendChartInst = null;
 let leaderSort = { key: 'jump', dir: 'desc' };
@@ -4567,7 +4548,6 @@ function renderTeamView() {
   document.getElementById('bodyMapTeamTag').textContent = `Media de ${list.length} jugador${list.length === 1 ? '' : 'es'} · antropometría`;
 
   const catText = filters.categoria.size ? [...filters.categoria].join(' + ') : TEAM.categorias.join(' + ');
-  document.getElementById('metaCategoria').textContent = catText;
   document.getElementById('heroCategoria').textContent = catText;
 }
 
@@ -4598,9 +4578,6 @@ function renderKPIs(list) {
       <div class="v">${k.v}${k.unit ? '<small>' + k.unit + '</small>' : ''}</div>
       ${k.v2 ? `<div class="v2">${k.v2}</div>` : ''}
     </div>`).join('');
-
-  document.getElementById('metaAntroDate').textContent = TEAM.testDateAntro;
-  document.getElementById('metaValdDate').textContent = TEAM.testDateVald;
 }
 
 function riskBadgeForPlayer(p) {
@@ -4643,12 +4620,12 @@ function renderLeaderboard(list) {
     <tr onclick="selectPlayer('${p.id}')">
       <td class="rank ${rankClass}">${i + 1}</td>
       <td class="name">${p.name}<span class="id">${p.id}</span></td>
-      <td class="mono">${p.anthro.pesoMissing ? '<span style="color:var(--text-faint)">s/d</span>' : fmt(p.anthro.peso, 1) + ' kg'}</td>
       <td>${p.hasVald ? `
         <div class="barcell">
-          <span class="num">${fmt(p.vald.latest.peakPowerEst, 0)}</span>
+          <span class="num">${fmt(p.vald.latest.peakPowerEst, 0)}<small style="opacity:.55;font-size:9.5px;"> W</small></span>
           <div class="bartrack"><div class="barfill gold" style="width:${powerPct}%"></div></div>
-        </div>` : '<span class="badge no-data">Sin test</span>'}
+        </div>
+        <div style="font-size:10px;color:var(--text-faint);font-family:'IBM Plex Mono';margin-top:3px;">${fmt(p.vald.latest.bw, 1)} kg en el test</div>` : '<span class="badge no-data">Sin test</span>'}
       </td>
       <td>${p.hasVald ? `
         <div class="barcell">
@@ -4695,15 +4672,31 @@ function renderPendingPanel() {
 }
 
 // ------------------------------------------------------------
-// BODY MAP (shared by team + player views)
+// BODY MAP (shared by team + player views) — filled silhouette
+// with each analyzed surface shaded independently
 // ------------------------------------------------------------
+const BODY_SURFACES = [
+  { id: 'brazo',     label: 'Brazo',    side: 'left',  labelY: 46,  anchor: { x: 278, y: 111 },
+    parts: [{ key: 'brazo_relajado', partLabel: 'Relajado' }, { key: 'brazo_90', partLabel: '90°' }] },
+  { id: 'antebrazo', label: 'Antebrazo', side: 'left',  labelY: 196, anchor: { x: 272, y: 186 },
+    parts: [{ key: 'antebrazo', partLabel: null }] },
+  { id: 'cadera',    label: 'Cadera',   side: 'left',  labelY: 346, anchor: { x: 300, y: 194 },
+    parts: [{ key: 'rot_interna_cadera', partLabel: 'Rot. interna' }, { key: 'rot_externa_cadera', partLabel: 'Rot. externa' }] },
+  { id: 'muslo',     label: 'Muslo',    side: 'right', labelY: 46,  anchor: { x: 341, y: 269 },
+    parts: [{ key: 'muslo', partLabel: 'Máx' }, { key: 'muslo_medio', partLabel: 'Medio' }] },
+  { id: 'gemelo',    label: 'Gemelo',   side: 'right', labelY: 196, anchor: { x: 343, y: 389 },
+    parts: [{ key: 'pierna', partLabel: null }] },
+  { id: 'tobillo',   label: 'Tobillo',  side: 'right', labelY: 346, anchor: { x: 352, y: 467 },
+    parts: [{ key: 'tobillo', partLabel: 'Perímetro' }, { key: 'dorsiflexion', partLabel: 'Dorsiflexión' }] },
+];
+
 function teamZoneData(list) {
   return (key) => {
     const vals = list.map(p => p.anthro.asimetrias[key]).filter(v => v != null).map(Math.abs);
     if (!vals.length) return { value: null };
     const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
     const nFlag = vals.filter(v => v >= 15).length;
-    return { value: Math.round(avg * 10) / 10, sub: `media · ${nFlag}/${vals.length} ≥15%` };
+    return { value: Math.round(avg * 10) / 10, sub: `${nFlag}/${vals.length} ≥15%` };
   };
 }
 function playerZoneData(p) {
@@ -4715,39 +4708,57 @@ function playerZoneData(p) {
   };
 }
 
-function renderBodyMapSVG(containerId, getZoneData) {
-  const rows = BODY_ZONES.map(z => {
-    const d = getZoneData(z.key) || {};
-    const color = severityColor(d.value);
-    const boxX = z.side === 'left' ? 14 : 476;
-    const boxW = 150, boxH = 56;
-    const anchorX = z.side === 'left' ? boxX + boxW : boxX;
-    const anchorY = z.labelY + boxH / 2;
+function renderBodyMapSVG(containerId, perKeyFn) {
+  const results = {};
+  BODY_SURFACES.forEach(s => {
+    const parts = s.parts.map(pt => ({ ...pt, ...(perKeyFn(pt.key) || { value: null }) }));
+    const defined = parts.filter(pt => pt.value != null);
+    const mainValue = defined.length ? Math.max(...defined.map(pt => Math.abs(pt.value))) : null;
+    results[s.id] = { color: severityColor(mainValue), mainValue, parts };
+  });
+  const c = id => results[id].color;
+
+  const labelsHTML = BODY_SURFACES.map(s => {
+    const r = results[s.id];
+    const boxX = s.side === 'left' ? 14 : 476;
+    const boxW = 150, boxH = 78;
+    const anchorLineX = s.side === 'left' ? boxX + boxW : boxX;
+    const anchorLineY = s.labelY + boxH / 2;
+    const partsHTML = r.parts.length > 1
+      ? r.parts.map(pt => `<div class="bm-sub">${pt.partLabel}: ${pt.value != null ? pt.value + '%' : 's/d'}</div>`).join('')
+      : (r.parts[0].sub ? `<div class="bm-sub">${r.parts[0].sub}</div>` : '');
     return `
-      <line x1="${anchorX}" y1="${anchorY}" x2="${z.dotX}" y2="${z.dotY}" style="stroke:${color};stroke-width:1.3;stroke-dasharray:3,3;opacity:.65"/>
-      <circle cx="${z.dotX}" cy="${z.dotY}" r="5" style="fill:${color};stroke:#0a0d12;stroke-width:1.5"/>
-      <foreignObject x="${boxX}" y="${z.labelY}" width="${boxW}" height="${boxH}">
-        <div xmlns="http://www.w3.org/1999/xhtml" class="bm-card" style="background:var(--panel-2);border:1px solid var(--border);border-left:3px solid ${color};border-radius:8px;padding:7px 10px;height:100%;box-sizing:border-box;">
-          <div class="bm-zone">${ASYM_LABELS[z.key]}</div>
-          <div class="bm-val" style="color:${color}">${d.value != null ? d.value + '%' : 's/d'}</div>
-          ${d.sub ? `<div class="bm-sub">${d.sub}</div>` : ''}
+      <line x1="${anchorLineX}" y1="${anchorLineY}" x2="${s.anchor.x}" y2="${s.anchor.y}" style="stroke:${r.color};stroke-width:1.3;stroke-dasharray:3,3;opacity:.6"/>
+      <foreignObject x="${boxX}" y="${s.labelY}" width="${boxW}" height="${boxH}">
+        <div xmlns="http://www.w3.org/1999/xhtml" class="bm-card" style="background:var(--panel-2);border:1px solid var(--border);border-left:3px solid ${r.color};border-radius:8px;padding:7px 10px;height:100%;box-sizing:border-box;overflow:hidden;">
+          <div class="bm-zone">${s.label}</div>
+          <div class="bm-val" style="color:${r.color}">${r.mainValue != null ? r.mainValue.toFixed(1) + '%' : 's/d'}</div>
+          ${partsHTML}
         </div>
       </foreignObject>`;
   }).join('');
 
   const svg = `
   <svg viewBox="0 0 640 520" xmlns="http://www.w3.org/2000/svg">
-    <g class="bm-figure">
-      <circle cx="320" cy="34" r="22"/>
-      <rect x="312" y="54" width="16" height="16"/>
-      <polygon class="fillshape" points="280,68 360,68 352,178 288,178"/>
-      <polygon class="fillshape" points="288,178 352,178 348,210 292,210"/>
-      <polyline points="286,74 268,150 276,230"/>
-      <polyline points="354,74 372,150 364,230"/>
-      <polyline points="300,208 298,330 295,460 285,472"/>
-      <polyline points="340,208 342,330 345,460 355,472"/>
+    <g class="bm-figure-base">
+      <circle cx="320" cy="34" r="23"/>
+      <rect x="311" y="52" width="18" height="18" rx="5"/>
+      <polygon points="279,66 361,66 353,178 287,178"/>
     </g>
-    ${rows}
+    <g stroke-linecap="round" fill="none">
+      <line x1="288" y1="74" x2="268" y2="148" style="stroke:${c('brazo')}" stroke-width="27"/>
+      <line x1="352" y1="74" x2="372" y2="148" style="stroke:${c('brazo')}" stroke-width="27"/>
+      <line x1="268" y1="148" x2="276" y2="224" style="stroke:${c('antebrazo')}" stroke-width="22"/>
+      <line x1="372" y1="148" x2="364" y2="224" style="stroke:${c('antebrazo')}" stroke-width="22"/>
+      <line x1="300" y1="207" x2="298" y2="326" style="stroke:${c('muslo')}" stroke-width="34"/>
+      <line x1="340" y1="207" x2="342" y2="326" style="stroke:${c('muslo')}" stroke-width="34"/>
+      <line x1="298" y1="326" x2="294" y2="452" style="stroke:${c('gemelo')}" stroke-width="25"/>
+      <line x1="342" y1="326" x2="346" y2="452" style="stroke:${c('gemelo')}" stroke-width="25"/>
+      <line x1="291" y1="460" x2="282" y2="472" style="stroke:${c('tobillo')}" stroke-width="19"/>
+      <line x1="349" y1="460" x2="358" y2="472" style="stroke:${c('tobillo')}" stroke-width="19"/>
+    </g>
+    <polygon points="287,178 353,178 347,208 293,208" style="fill:${c('cadera')};stroke:#0a0d12;stroke-width:1.5"/>
+    ${labelsHTML}
   </svg>`;
   document.getElementById(containerId).innerHTML = svg;
 }
