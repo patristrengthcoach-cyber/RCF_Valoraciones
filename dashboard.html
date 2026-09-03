@@ -351,28 +351,30 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border-soft);
     <div class="tv-section" data-section-id="leaderboard">
     <div class="section-head">
       <div class="section-head-row"><h2>Leaderboard físico</h2><button class="export-btn no-print" onclick="exportTeamSection('leaderboard','Leaderboard físico')">⬇ PDF</button></div>
-      <div class="search-wrap no-print"><input class="search-input" id="searchInput" placeholder="Buscar jugador o ID…"></div>
+      <div class="search-wrap no-print" style="position:relative;">
+        <div style="position:relative;">
+          <button class="filter-btn" id="columnsBtn">Columnas <span class="count" id="columnsCount"></span> <span class="caret">▾</span></button>
+          <div class="filter-dd" id="dd-columns" style="left:auto;right:0;min-width:240px;">
+            <div class="filter-dd-head">
+              <span>Columnas del ranking</span>
+              <span><button data-act="default" id="columnsDefaultBtn">Por defecto</button></span>
+            </div>
+            <div class="filter-dd-list" id="columnsList"></div>
+          </div>
+        </div>
+        <input class="search-input" id="searchInput" placeholder="Buscar jugador o ID…">
+      </div>
     </div>
     <div class="panel" style="overflow:hidden;">
       <div style="max-height:640px;overflow:auto;">
         <table id="leaderTable">
-          <thead>
-            <tr>
-              <th data-key="rank" style="width:30px;"></th>
-              <th data-key="name">Jugador</th>
-              <th data-key="power">Potencia CMJ <span class="est-tag">est.</span> <span class="arrow"></span></th>
-              <th data-key="jump">Salto CMJ <span class="arrow"></span></th>
-              <th data-key="rsi">RSI-mod <span class="arrow"></span></th>
-              <th data-key="testDate">Último test</th>
-              <th data-key="risk">Asimetrías</th>
-              <th></th>
-            </tr>
-          </thead>
+          <thead id="leaderHead"></thead>
           <tbody id="leaderBody"></tbody>
         </table>
       </div>
     </div>
     </div>
+
 
     <div class="tv-section" data-section-id="risk">
     <div class="grid-2" style="margin-top:34px;">
@@ -16004,6 +16006,7 @@ function renderFilterBar() {
   `).join('');
 
   document.querySelectorAll('.filter-btn').forEach(btn => {
+    if (!btn.dataset.filter) return;
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const key = btn.dataset.filter;
@@ -16012,6 +16015,7 @@ function renderFilterBar() {
     });
   });
   document.querySelectorAll('.filter-dd input[type=checkbox]').forEach(cb => {
+    if (!cb.dataset.filter) return;
     cb.addEventListener('change', () => {
       const key = cb.dataset.filter;
       if (cb.checked) filters[key].add(cb.value); else filters[key].delete(cb.value);
@@ -16020,6 +16024,7 @@ function renderFilterBar() {
     });
   });
   document.querySelectorAll('.filter-dd-head button').forEach(b => {
+    if (!b.dataset.filter) return;
     b.addEventListener('click', () => {
       const key = b.dataset.filter;
       const defList = defs.find(d => d.key === key).options;
@@ -16088,20 +16093,108 @@ function riskBadgeForPlayer(p) {
   return `<span class="badge ${maxSev}">${p.riskCount} alerta${p.riskCount > 1 ? 's' : ''}</span>`;
 }
 
+const COLUMN_DEFS = {
+  altura: {
+    label: 'Altura', sortValue: p => p.anthro.altura ?? -1,
+    cell: p => p.anthro.altura != null
+      ? `<span class="mono">${fmt(p.anthro.altura, 1)} cm</span><div style="font-size:9.5px;color:var(--text-faint);margin-top:2px;">${p.anthro.pct_altura != null ? 'P' + Math.round(p.anthro.pct_altura) + ' de su categoría' : ''}</div>`
+      : '<span class="mono">—</span>',
+  },
+  peso: {
+    label: 'Peso', sortValue: p => p.anthro.peso ?? -1,
+    cell: p => p.anthro.pesoMissing ? '<span style="color:var(--text-faint)">s/d</span>' : `<span class="mono">${fmt(p.anthro.peso, 1)} kg</span>`,
+  },
+  power: {
+    label: 'Potencia CMJ', estTag: true, sortValue: p => p.hasVald ? p.vald.latest.peakPowerEst : -1,
+    cell: (p, ctx) => p.hasVald ? `
+      <div class="barcell">
+        <span class="num">${fmt(p.vald.latest.peakPowerEst, 0)}<small style="opacity:.55;font-size:9.5px;"> W</small></span>
+        <div class="bartrack"><div class="barfill gold" style="width:${Math.max(4, (p.vald.latest.peakPowerEst / ctx.maxPower) * 100)}%"></div></div>
+      </div>
+      <div style="font-size:10px;color:var(--text-faint);font-family:'IBM Plex Mono';margin-top:3px;">${fmt(p.vald.latest.bw, 1)} kg en el test</div>` : '<span class="badge no-data">Sin test</span>',
+  },
+  jump: {
+    label: 'Salto CMJ', sortValue: p => p.hasVald ? p.vald.latest.jumpHeight : -1,
+    cell: (p, ctx) => p.hasVald ? `
+      <div class="barcell">
+        <span class="num">${fmt(p.vald.latest.jumpHeight, 1)}</span>
+        <div class="bartrack"><div class="barfill" style="width:${Math.max(4, (p.vald.latest.jumpHeight / ctx.maxJump) * 100)}%"></div></div>
+      </div>` : '<span class="badge no-data">Sin test</span>',
+  },
+  rsi: {
+    label: 'RSI-mod', sortValue: p => p.hasVald ? p.vald.latest.rsiMod : -1,
+    cell: p => `<span class="mono">${p.hasVald ? fmt(p.vald.latest.rsiMod, 2) : '—'}</span>`,
+  },
+  testDate: {
+    label: 'Último test', sortValue: p => p.hasVald ? p.vald.latest.date : '',
+    cell: p => `<span class="mono" style="color:var(--text-dim);font-size:11.5px;">${p.hasVald ? p.vald.latest.date : '—'}</span>`,
+  },
+  pctFat: {
+    label: '% Graso', sortValue: p => p.hasPliegues ? p.pliegues.pctFatEst : -1,
+    cell: p => p.hasPliegues ? `<span class="mono">${fmt(p.pliegues.pctFatEst, 1)}%</span>` : '<span style="color:var(--text-faint)">s/d</span>',
+  },
+  growth: {
+    label: 'Crec. cm/año', sortValue: p => p.growth ? p.growth.velocityCmYear : -999,
+    cell: p => {
+      if (!p.growth) return '<span style="color:var(--text-faint)">s/d</span>';
+      const color = p.phvAlert ? (p.phvAlert.severity === 'high' ? 'var(--red)' : 'var(--amber)') : 'var(--text-dim)';
+      return `<span class="mono" style="color:${color};font-weight:600;">${fmt(p.growth.velocityCmYear, 1)}</span>`;
+    },
+  },
+  categoria: {
+    label: 'Categoría', sortValue: p => p.anthro.categoria,
+    cell: p => `<span style="font-size:11.5px;color:var(--text-dim);">${p.anthro.categoria}</span>`,
+  },
+};
+const DEFAULT_COLUMNS = ['altura', 'power', 'jump', 'rsi', 'testDate'];
+let visibleColumns = new Set(DEFAULT_COLUMNS);
+
+function renderColumnsPicker() {
+  document.getElementById('columnsCount').textContent = visibleColumns.size;
+  document.getElementById('columnsList').innerHTML = Object.entries(COLUMN_DEFS).map(([key, def]) => `
+    <label class="filter-opt">
+      <input type="checkbox" data-col="${key}" ${visibleColumns.has(key) ? 'checked' : ''}>
+      ${def.label}${def.estTag ? ' <span class="est-tag">est.</span>' : ''}
+    </label>`).join('');
+  document.querySelectorAll('#columnsList input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.checked) visibleColumns.add(cb.dataset.col); else visibleColumns.delete(cb.dataset.col);
+      renderColumnsPicker();
+      renderLeaderboard(applyFilters());
+    });
+  });
+}
+
 function getSortValue(p, key) {
-  switch (key) {
-    case 'name': return p.name;
-    case 'peso': return p.anthro.peso ?? -1;
-    case 'power': return p.hasVald ? p.vald.latest.peakPowerEst : -1;
-    case 'jump': return p.hasVald ? p.vald.latest.jumpHeight : -1;
-    case 'rsi': return p.hasVald ? p.vald.latest.rsiMod : -1;
-    case 'testDate': return p.hasVald ? p.vald.latest.date : '';
-    case 'risk': return p.riskCount;
-    default: return 0;
-  }
+  if (key === 'name') return p.name;
+  if (key === 'risk') return p.riskCount;
+  if (COLUMN_DEFS[key]) return COLUMN_DEFS[key].sortValue(p);
+  return 0;
+}
+
+function renderLeaderHead() {
+  const cols = Object.keys(COLUMN_DEFS).filter(k => visibleColumns.has(k));
+  const ths = ['<th data-key="rank" style="width:30px;"></th>', '<th data-key="name">Jugador</th>']
+    .concat(cols.map(k => `<th data-key="${k}">${COLUMN_DEFS[k].label}${COLUMN_DEFS[k].estTag ? ' <span class="est-tag">est.</span>' : ''} <span class="arrow"></span></th>`))
+    .concat(['<th data-key="risk">Asimetrías</th>', '<th></th>']);
+  document.getElementById('leaderHead').innerHTML = '<tr>' + ths.join('') + '</tr>';
+  document.querySelectorAll('#leaderTable thead th[data-key]').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      if (leaderSort.key === key) leaderSort.dir = leaderSort.dir === 'asc' ? 'desc' : 'asc';
+      else { leaderSort.key = key; leaderSort.dir = 'desc'; }
+      renderLeaderboard(applyFilters());
+    });
+  });
 }
 
 function renderLeaderboard(list) {
+  const cols = Object.keys(COLUMN_DEFS).filter(k => visibleColumns.has(k));
+  if (!cols.includes(leaderSort.key) && leaderSort.key !== 'name' && leaderSort.key !== 'risk') {
+    leaderSort = { key: cols[0] || 'name', dir: 'desc' };
+  }
+  renderLeaderHead();
+
   const rows = [...list].sort((a, b) => {
     const av = getSortValue(a, leaderSort.key), bv = getSortValue(b, leaderSort.key);
     if (typeof av === 'string') return leaderSort.dir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
@@ -16109,34 +16202,21 @@ function renderLeaderboard(list) {
   });
 
   const withVald = list.filter(p => p.hasVald);
-  const maxJump = Math.max(1, ...withVald.map(p => p.vald.latest.jumpHeight));
-  const maxPower = Math.max(1, ...withVald.map(p => p.vald.latest.peakPowerEst));
+  const ctx = {
+    maxJump: Math.max(1, ...withVald.map(p => p.vald.latest.jumpHeight)),
+    maxPower: Math.max(1, ...withVald.map(p => p.vald.latest.peakPowerEst)),
+  };
 
   const filtered = rows.filter(p => (p.name + p.id).toLowerCase().includes(searchText.toLowerCase()));
 
   document.getElementById('leaderBody').innerHTML = filtered.map((p, i) => {
     const rankClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
-    const jumpPct = p.hasVald ? Math.max(4, (p.vald.latest.jumpHeight / maxJump) * 100) : 0;
-    const powerPct = p.hasVald ? Math.max(4, (p.vald.latest.peakPowerEst / maxPower) * 100) : 0;
+    const dataCells = cols.map(k => `<td>${COLUMN_DEFS[k].cell(p, ctx)}</td>`).join('');
     return `
     <tr onclick="selectPlayer('${p.id}')">
       <td class="rank ${rankClass}">${i + 1}</td>
       <td class="name">${p.name}${p.categoriaConflict ? ' <span title="Categoría en conflicto con el roster oficial" style="color:var(--amber);">⚠</span>' : ''}${p.isUnresolvedId ? ' <span title="ID sin confirmar en el roster" style="color:var(--text-faint);">❓</span>' : ''}<span class="id">${p.id}</span></td>
-      <td>${p.hasVald ? `
-        <div class="barcell">
-          <span class="num">${fmt(p.vald.latest.peakPowerEst, 0)}<small style="opacity:.55;font-size:9.5px;"> W</small></span>
-          <div class="bartrack"><div class="barfill gold" style="width:${powerPct}%"></div></div>
-        </div>
-        <div style="font-size:10px;color:var(--text-faint);font-family:'IBM Plex Mono';margin-top:3px;">${fmt(p.vald.latest.bw, 1)} kg en el test</div>` : '<span class="badge no-data">Sin test</span>'}
-      </td>
-      <td>${p.hasVald ? `
-        <div class="barcell">
-          <span class="num">${fmt(p.vald.latest.jumpHeight, 1)}</span>
-          <div class="bartrack"><div class="barfill" style="width:${jumpPct}%"></div></div>
-        </div>` : '<span class="badge no-data">Sin test</span>'}
-      </td>
-      <td class="mono">${p.hasVald ? fmt(p.vald.latest.rsiMod, 2) : '—'}</td>
-      <td class="mono" style="color:var(--text-dim);font-size:11.5px;">${p.hasVald ? p.vald.latest.date : '—'}</td>
+      ${dataCells}
       <td>${riskBadgeForPlayer(p)}</td>
       <td class="chev">›</td>
     </tr>`;
@@ -16711,6 +16791,7 @@ window.addEventListener('afterprint', () => {
 });
 document.addEventListener('DOMContentLoaded', () => {
   renderFilterBar();
+  renderColumnsPicker();
   renderTeamView();
 
   document.getElementById('backBtn').addEventListener('click', goTeamView);
@@ -16719,13 +16800,15 @@ document.addEventListener('DOMContentLoaded', () => {
     renderLeaderboard(applyFilters());
   });
 
-  document.querySelectorAll('#leaderTable thead th[data-key]').forEach(th => {
-    th.addEventListener('click', () => {
-      const key = th.dataset.key;
-      if (leaderSort.key === key) leaderSort.dir = leaderSort.dir === 'asc' ? 'desc' : 'asc';
-      else { leaderSort.key = key; leaderSort.dir = 'desc'; }
-      renderLeaderboard(applyFilters());
-    });
+  document.getElementById('columnsBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.querySelectorAll('.filter-dd').forEach(dd => { if (dd.id !== 'dd-columns') dd.classList.remove('open'); });
+    document.getElementById('dd-columns').classList.toggle('open');
+  });
+  document.getElementById('columnsDefaultBtn').addEventListener('click', () => {
+    visibleColumns = new Set(DEFAULT_COLUMNS);
+    renderColumnsPicker();
+    renderLeaderboard(applyFilters());
   });
 });
 
