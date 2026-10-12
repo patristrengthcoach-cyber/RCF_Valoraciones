@@ -309,7 +309,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border-soft);
   .tabs{display:none !important;}
   #plTable td.fold{padding:5px 3px;font-size:10.5px;}
   #plTable td, #plTable th{padding:6px 5px;font-size:10.5px;}
-  #plTable .bartrack, #plTable .chev, #plTable thead th:last-child, #plTable .cat-dot{display:none;}
+  #plTable .chev, #plTable thead th:last-child{display:none;}
   #plTable td, #plTable th{padding:5px 3px;font-size:9.5px;}
   #plTable td.name{font-size:10.5px;}
   #plTable .barcell .num{width:auto;}
@@ -348,6 +348,88 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border-soft);
   #phvTable td, #phvTable th{padding:4px 3px;font-size:9px;}
   #phvTable td.obs{min-width:130px;max-width:190px;font-size:8.5px;}
   #phvTable .chev{display:none;}
+}
+
+
+/* ---------- print: tabs that keep the app look (dark, colours) ---------- */
+@media print{
+  html.print-dark, body.print-dark{
+    --bg:#0a0d12; --bg-2:#0e131a; --panel:#121821; --panel-2:#161e29;
+    --border:#232d3a; --border-soft:#1a232e;
+    --text:#eef2f6; --text-dim:#8d99a8; --text-faint:#576374;
+    --gold-soft:rgba(207,166,77,.14); --cyan-soft:rgba(55,214,196,.14);
+    --red-soft:rgba(232,86,74,.14); --green-soft:rgba(111,207,123,.14);
+    background:#0a0d12 !important;
+  }
+  body.print-dark{background-image:radial-gradient(circle at 15% 0%, rgba(55,214,196,.05), transparent 40%),radial-gradient(circle at 85% 10%, rgba(207,166,77,.04), transparent 45%) !important;color:var(--text);}
+  html.print-dark, html.print-dark *{-webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;}
+  body.print-dark .print-header{border-bottom:2px solid var(--border);}
+  body.print-dark .print-header .pt-title{color:var(--text);}
+  body.print-dark .print-header .pt-sub{color:var(--text-dim);}
+  body.print-dark .hero{padding-top:6px;}
+  body.print-dark .hero h1{font-size:34px;}
+  body.print-dark thead th{position:static;background:var(--panel);}
+  body.print-dark #plTable td, body.print-dark #plTable th{padding:6px 4px;font-size:10.5px;}
+  body.print-dark #plTable td.fold{font-size:10.5px;padding:6px 3px;}
+  body.print-dark #plTable td.name{font-size:11.5px;}
+  body.print-dark #plTable .bartrack{display:block;min-width:26px;}
+  body.print-dark #plTable .cat-dot{display:inline-block;}
+  body.print-dark #plTable .barcell .num{width:34px;}
+  body.print-dark #plTable .chev{display:none;}
+  body.print-dark .tv-section{break-inside:auto;}
+  body.print-dark .section-head{margin-top:22px;}
+  body.print-dark .panel{background:var(--panel) !important;}
+  body.print-dark footer{display:none;}
+  body.print-dark .kpi-row{grid-template-columns:repeat(6,1fr) !important;}
+  body.print-dark .grid-2{grid-template-columns:1fr 1fr !important;}
+  body.print-dark .panel{break-inside:auto !important;}
+  body.print-dark .grid-2 .panel, body.print-dark .ob-card, body.print-dark .ob-lead, body.print-dark .phv-card{break-inside:avoid !important;}
+  body.print-dark tr{break-inside:avoid;}
+  body.print-dark thead{display:table-header-group;}
+  body.print-dark .section-head{break-after:avoid;}
+  body.print-dark #plSumWrap{height:540px !important;}
+  body.print-dark .chart-wrap{max-height:540px;}
+  body.print-dark .scroll-box{overflow:visible !important;max-height:none !important;}
+}
+
+
+/* ---------- infantil objetivos ---------- */
+.ob-lead{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--cyan);border-radius:var(--radius);padding:16px 20px;font-size:13.5px;line-height:1.65;color:var(--text-dim);}
+.ob-lead b{color:var(--text);}
+.ob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}
+.ob-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
+.ob-card .n{font-family:'Big Shoulders Display';font-weight:800;font-size:13px;color:var(--cyan);letter-spacing:.08em;}
+.ob-card h3{font-family:'Big Shoulders Display';font-weight:700;font-size:19px;margin:2px 0 8px;}
+.ob-card ul{margin:0;padding-left:16px;font-size:12px;color:var(--text-dim);line-height:1.6;}
+.ob-card .kpi-line{margin-top:9px;padding-top:8px;border-top:1px solid var(--border-soft);font-size:11px;color:var(--text-faint);}
+.ob-card .kpi-line b{color:var(--gold);font-weight:600;}
+#obBaremos td, #obBaremos th{white-space:normal;vertical-align:top;padding:11px 12px;}
+#obBaremos thead th{cursor:default;}
+#obBaremos td.ind{min-width:170px;font-weight:600;font-size:13px;}
+#obBaremos td.ind small{display:block;font-weight:400;color:var(--text-faint);font-size:10.5px;margin-top:3px;line-height:1.45;}
+#obBaremos tbody tr{cursor:default;}
+#obBaremos .cell{font-size:11.5px;line-height:1.5;border-radius:7px;padding:7px 9px;}
+#obBaremos .cell.g{background:var(--green-soft);color:var(--green);border:1px solid rgba(111,207,123,.25);}
+#obBaremos .cell.a{background:rgba(232,162,61,.12);color:var(--amber);border:1px solid rgba(232,162,61,.28);}
+#obBaremos .cell.r{background:var(--red-soft);color:var(--red);border:1px solid rgba(232,86,74,.3);}
+#obBaremos .cell.n{background:var(--panel-2);color:var(--text-dim);border:1px solid var(--border);}
+.src-chip{display:inline-block;font-size:10px;font-weight:600;border-radius:12px;padding:2px 8px;font-family:'IBM Plex Mono';white-space:nowrap;margin-bottom:5px;}
+.src-chip.club{background:var(--cyan-soft);color:var(--cyan);}
+.src-chip.lit{background:var(--gold-soft);color:var(--gold);}
+.src-chip.int{background:var(--border-soft);color:var(--text-dim);}
+.src-chip.pend{background:rgba(232,162,61,.12);color:var(--amber);}
+.tl{display:inline-block;min-width:54px;text-align:center;font-family:'IBM Plex Mono';font-weight:600;font-size:11.5px;border-radius:6px;padding:3px 7px;}
+.tl.g{background:var(--green-soft);color:var(--green);}
+.tl.a{background:rgba(232,162,61,.15);color:var(--amber);}
+.tl.r{background:var(--red-soft);color:var(--red);}
+.tl.n{background:var(--border-soft);color:var(--text-faint);}
+#obSemTable td, #obSemTable th{padding:9px 10px;}
+#obSemTable td.c, #obSemTable th.c{text-align:center;}
+@media (max-width:920px){ .ob-grid{grid-template-columns:1fr;} }
+@media print{
+  .ob-grid{grid-template-columns:repeat(3,1fr);}
+  .ob-card, .ob-lead{break-inside:avoid;}
+  #obBaremos tr{break-inside:avoid;}
 }
 
 /* ---------- print / PDF export ---------- */
@@ -404,6 +486,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border-soft);
     <button class="tab-btn active" data-tab="general">Valoración general</button>
     <button class="tab-btn" data-tab="pliegues">Pliegues <span class="tab-n" id="plTabCount"></span></button>
     <button class="tab-btn" data-tab="phv">PHV <span class="tab-n" id="phvTabCount"></span></button>
+    <button class="tab-btn" data-tab="objetivos">Infantil · Objetivos y baremos</button>
   </div>
 
   <!-- ================= TEAM VIEW ================= -->
@@ -613,6 +696,61 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border-soft);
     <footer class="no-print">
       <span>VALORACIÓN CANTERA · Racing Club Ferrol · Control de crecimiento (PHV)</span>
       <span id="phvFooter"></span>
+    </footer>
+  </div>
+
+
+  <!-- ================= INFANTIL OBJETIVOS VIEW ================= -->
+  <div id="obView" style="display:none;">
+    <div class="tv-section" data-section-id="ob-hero">
+    <div class="hero">
+      <div class="hero-eyebrow">Categoría Infantil · objetivos y criterios de valoración · <span id="obUpdated"></span></div>
+      <h1>INFANTIL · OBJETIVOS Y BAREMOS</h1>
+      <p class="sub">Qué buscamos en la categoría Infantil (Infantil A, Infantil B e Infantil Femenino) y con qué valores se interpretan los datos del dashboard. Es independiente del filtro de categoría de la barra superior.</p>
+      <div class="kpi-row" id="obKpiRow"></div>
+      <button class="export-btn lg no-print" style="margin-top:18px;" onclick="exportTeamSection('all','Infantil — objetivos y baremos')">⬇ Exportar esta pestaña (PDF)</button>
+    </div>
+    </div>
+
+    <div class="tv-section" data-section-id="ob-objetivos">
+    <div class="section-head"><div class="section-head-row"><h2>Objetivo de la categoría</h2><button class="export-btn no-print" onclick="exportTeamSection('ob-objetivos','Infantil — objetivo de la categoría')">⬇ PDF</button></div><span class="tag">12-14 años aprox. · antes de PHV → entorno del PHV</span></div>
+    <div class="ob-lead">
+      <b>Objetivo general.</b> En Infantil no se busca el rendimiento físico del adulto, sino <b>construir una base motriz y física amplia, individualizada según la maduración biológica</b>, y llegar al pico de crecimiento (PHV, ≈13,5 años de media en chicos) <b>sin lesiones por sobreuso y sin perder coordinación</b>. La edad cronológica manda menos que el momento de crecimiento de cada jugador: por eso el dashboard cruza altura, velocidad de crecimiento, pliegues y asimetrías.
+    </div>
+    <div class="ob-grid" id="obGoals"></div>
+    </div>
+
+    <div class="tv-section" data-section-id="ob-baremos">
+    <div class="section-head"><div class="section-head-row"><h2>Baremos</h2><button class="export-btn no-print" onclick="exportTeamSection('ob-baremos','Infantil — baremos')">⬇ PDF</button></div><span class="tag">semáforo: verde objetivo · ámbar vigilar · rojo actuar</span></div>
+    <div class="panel" style="overflow:hidden;">
+      <div class="scroll-box" style="max-height:none;">
+        <table id="obBaremos">
+          <thead><tr><th>Indicador</th><th>Verde · objetivo</th><th>Ámbar · vigilar</th><th>Rojo · actuar</th><th>Origen del baremo</th></tr></thead>
+          <tbody id="obBaremosBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="foot-note" id="obBaremosNote"></p>
+    </div>
+
+    <div class="tv-section" data-section-id="ob-semaforo">
+    <div class="section-head"><div class="section-head-row"><h2>Semáforo por jugador</h2><button class="export-btn no-print" onclick="exportTeamSection('ob-semaforo','Infantil — semáforo por jugador')">⬇ PDF</button></div><span class="tag" id="obSemTag"></span></div>
+    <div class="panel" style="overflow:hidden;">
+      <div class="scroll-box">
+        <table id="obSemTable"><thead id="obSemHead"></thead><tbody id="obSemBody"></tbody></table>
+      </div>
+    </div>
+    <p class="foot-note">Cada celda aplica los baremos de arriba a los datos actuales del jugador. "—" = sin dato todavía (p. ej. pliegues solo hay en Infantil A y parte de Infantil B). Pulsa un jugador para abrir su ficha.</p>
+    </div>
+
+    <div class="tv-section" data-section-id="ob-fuentes">
+    <div class="section-head"><h2>Fuentes y nivel de evidencia</h2></div>
+    <div class="panel" style="padding:8px 20px;" id="obSources"></div>
+    </div>
+
+    <footer class="no-print">
+      <span>VALORACIÓN CANTERA · Racing Club Ferrol · Infantil — objetivos y baremos</span>
+      <span id="obFooter"></span>
     </footer>
   </div>
 
@@ -1268,6 +1406,7 @@ function selectPlayer(id) {
   if (document.getElementById('playerView').style.display !== 'block') originTab = currentTab;
   document.getElementById('pliegView').style.display = 'none';
   document.getElementById('phvView').style.display = 'none';
+  document.getElementById('obView').style.display = 'none';
   document.getElementById('tabBar').style.display = 'none';
   document.getElementById('teamView').style.display = 'none';
   document.getElementById('playerView').style.display = 'block';
@@ -1614,7 +1753,7 @@ let plChartSumInst = null;
 let plChartProfInst = null;
 
 function refreshAll() {
-  if (currentTab === 'pliegues') renderPliegTab(); else if (currentTab === 'phv') renderPhvTab(); else renderTeamView();
+  if (currentTab === 'pliegues') renderPliegTab(); else if (currentTab === 'phv') renderPhvTab(); else if (currentTab === 'objetivos') renderObjTab(); else renderTeamView();
 }
 
 function showTab(name) {
@@ -1625,8 +1764,9 @@ function showTab(name) {
   document.getElementById('teamView').style.display = name === 'general' ? 'block' : 'none';
   document.getElementById('pliegView').style.display = name === 'pliegues' ? 'block' : 'none';
   document.getElementById('phvView').style.display = name === 'phv' ? 'block' : 'none';
+  document.getElementById('obView').style.display = name === 'objetivos' ? 'block' : 'none';
   document.querySelectorAll('#tabBar .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
-  if (name === 'pliegues') renderPliegTab(); else if (name === 'phv') renderPhvTab(); else renderTeamView();
+  if (name === 'pliegues') renderPliegTab(); else if (name === 'phv') renderPhvTab(); else if (name === 'objetivos') renderObjTab(); else renderTeamView();
 }
 
 function plRecords() {
@@ -2111,6 +2251,181 @@ function renderPhvNotes(list) {
   document.getElementById('phvNotes').innerHTML = notes.map(([lv, t]) => `<div class="pl-note ${lv}"><span class="ic">${lv === 'warn' ? '⚠' : 'ℹ'}</span><span>${t}</span></div>`).join('');
 }
 
+
+// ------------------------------------------------------------
+// INFANTIL · OBJETIVOS Y BAREMOS
+// ------------------------------------------------------------
+// Valores de los baremos en un único sitio para poder ajustarlos.
+const BAREMOS = {
+  growthMonth: 0.6,            // cm/mes -> alerta PHV (criterio RCF; = 7,2 cm/año)
+  fatOk: 20, fatRisk: 25,      // % graso (Slaughter): ≈ media+1DT de academias U13-U14 / umbral de riesgo para la salud en chicos
+  asymWarn: 10, asymRisk: 15,  // % asimetría
+  pctLo: 10, pctHi: 90,        // percentil de altura dentro de la categoría
+  fatRef: { U13: [16.6, 5.2], U14: [15.8, 3.6] },
+  vift: { U13: [17.73, 1.24], U14: [18.14, 1.56] },
+};
+const INF_CATS = ['Infantil A', 'Infantil B', 'Infantil Femenino'];
+
+const OBJ_GOALS = [
+  { n: '01', t: 'Crecimiento bajo control', li: [
+      'Medir altura al menos cada 3 meses en todos los jugadores.',
+      'Identificar quién está acelerando (≥0,6 cm/mes) y ajustar la carga a ese momento, no a su edad.',
+      'Evitar que un pico de crecimiento llegue sin que el staff lo sepa.'],
+    kpi: () => { const l = infPlayers(); return `<b>${l.filter(p => p.growth).length}/${l.length}</b> con velocidad de crecimiento real`; } },
+  { n: '02', t: 'Calidad y técnica de movimiento', li: [
+      'Coordinación, equilibrio, aterrizajes, frenadas y cambios de dirección bien ejecutados antes de añadir intensidad.',
+      'En alerta PHV: técnica motriz y reducción del volumen de COD / ACC / DECC.',
+      'Evitar la "torpeza adolescente" cuidando la variabilidad de estímulos.'],
+    kpi: () => `Se trabaja con criterio de entrenador; sin test cuantitativo propio todavía` },
+  { n: '03', t: 'Fuerza base y robustez', li: [
+      'Fuerza con peso corporal y técnica antes que carga externa; progresión gradual.',
+      'Pliometría progresiva: empezar en ≈50-60 contactos por sesión y llegar a 80-120, con 72 h de descanso entre sesiones (revisión de lesiones por sobreuso en fútbol adolescente).',
+      'No replicar en pequeño los protocolos de la categoría senior.'],
+    kpi: () => `Referencia: <b>programas de 8-10 semanas</b>, 2-4 ejercicios` },
+  { n: '04', t: 'Composición corporal saludable', li: [
+      'Seguimiento con 8 pliegues (Σ8) y % graso estimado (Slaughter 1988).',
+      'Objetivo: mantenerse en el rango habitual de academias y evitar el exceso de graso; <b>no se busca bajar peso</b> por debajo de la referencia en esta edad.',
+      'Interpretar siempre junto con el crecimiento: un cambio de pliegues en pleno estirón no es un cambio de hábitos.'],
+    kpi: () => { const f = infFats(); return f.length ? `% graso medio Infantil: <b>${fmt(f.reduce((a, b) => a + b, 0) / f.length, 1)}%</b> (n=${f.length})` : 'Sin pliegues todavía'; } },
+  { n: '05', t: 'Simetría y salud musculoesquelética', li: [
+      'Asimetrías de perímetros y rangos articulares por debajo del 10%; vigilar de 10 a 15%; actuar a partir del 15%.',
+      'Prevención de Sever (talón) antes del PHV y de rodilla (Osgood-Schlatter) cerca/en el PHV.',
+      'Ajustar la exposición (partidos, torneos concentrados) en jugadores en ventana de riesgo.'],
+    kpi: () => { const l = infPlayers().filter(p => maxAsym(p) != null); return `<b>${l.filter(p => maxAsym(p) >= BAREMOS.asymRisk).length}</b> jugadores con alguna asimetría ≥${BAREMOS.asymRisk}%`; } },
+  { n: '06', t: 'Base aeróbica intermitente', li: [
+      'Desarrollo principalmente con juego, juegos reducidos y trabajo intermitente, no con carrera continua larga.',
+      'Test previsto: 30-15 IFT (la hoja de Infantil del Excel ya tiene la columna "30/15", aún sin datos).',
+      'Referencia de academias U13-U14: VIFT ≈ 17,7-18,1 km/h.'],
+    kpi: () => `Pendiente de registrar los primeros 30-15 IFT` },
+];
+
+function infPlayers() { return PLAYERS.filter(p => INF_CATS.includes(p.anthro.categoria)); }
+function infFats() { return infPlayers().filter(p => p.hasPliegues && p.pliegues.pctFatEst != null).map(p => p.pliegues.pctFatEst); }
+function maxAsym(p) {
+  const v = Object.values(p.anthro.asimetrias || {}).filter(x => x != null).map(Math.abs);
+  return v.length ? Math.max(...v) : null;
+}
+function quantile(arr, q) {
+  const a = [...arr].sort((x, y) => x - y);
+  if (!a.length) return null;
+  const pos = (a.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+  return a[lo] + (a[hi] - a[lo]) * (pos - lo);
+}
+function infSumRef() {
+  const s = PLIEG.records.filter(r => r.categoria === 'Infantil A' || r.categoria === 'Infantil B').map(r => r.sum8);
+  return { n: s.length, p25: quantile(s, .25), p50: quantile(s, .5), p75: quantile(s, .75), p90: quantile(s, .9) };
+}
+
+function tlFat(v) { if (v == null) return ['n', '—']; return [v >= BAREMOS.fatRisk ? 'r' : v > BAREMOS.fatOk ? 'a' : 'g', fmt(v, 1) + '%']; }
+function tlSum(v, ref) { if (v == null || ref.p75 == null) return ['n', '—']; return [v > ref.p90 ? 'r' : v > ref.p75 ? 'a' : 'g', fmt(v, 1)]; }
+function tlGrowth(p) {
+  if (!p.growth) return ['n', '—'];
+  const m = p.growth.velocityCmYear / 12;
+  return [m >= BAREMOS.growthMonth ? 'a' : 'g', fmt(m, 2)];
+}
+function tlHeight(p) {
+  const v = p.anthro.pct_altura;
+  if (v == null) return ['n', '—'];
+  return [(v < BAREMOS.pctLo || v > BAREMOS.pctHi) ? 'a' : 'g', 'P' + Math.round(v)];
+}
+function tlAsym(p) {
+  const v = maxAsym(p);
+  if (v == null) return ['n', '—'];
+  return [v >= BAREMOS.asymRisk ? 'r' : v >= BAREMOS.asymWarn ? 'a' : 'g', fmt(v, 1) + '%'];
+}
+
+function renderObjTab() {
+  const list = infPlayers();
+  const ref = infSumRef();
+  renderSafe('obKpis', () => {
+    const fats = infFats();
+    const alerts = list.filter(p => p.phvAlert).length;
+    const reds = list.filter(p => [tlFat(p.hasPliegues ? p.pliegues.pctFatEst : null), tlSum(p.hasPliegues ? p.pliegues.sumatorio : null, ref), tlAsym(p)].some(x => x[0] === 'r')).length;
+    const cnt = c => list.filter(p => p.anthro.categoria === c).length;
+    const kpis = [
+      { k: 'Jugadores Infantil', v: list.length, v2: `A ${cnt('Infantil A')} · B ${cnt('Infantil B')} · F ${cnt('Infantil Femenino')}`, accent: '' },
+      { k: 'Con pliegues', v: list.filter(p => p.hasPliegues).length, v2: 'Σ8 y % graso', accent: 'accent-cyan' },
+      { k: '% graso medio', v: fats.length ? fmt(fats.reduce((a, b) => a + b, 0) / fats.length, 1) : '—', unit: '%', accent: 'accent-gold', v2: `academias: U13 ${BAREMOS.fatRef.U13[0]}% · U14 ${BAREMOS.fatRef.U14[0]}%` },
+      { k: 'Σ8 mediana', v: ref.p50 != null ? fmt(ref.p50, 1) : '—', unit: 'mm', accent: '', v2: ref.p50 != null ? `P75 ${fmt(ref.p75, 1)} · P90 ${fmt(ref.p90, 1)}` : '' },
+      { k: 'Alertas PHV', v: alerts, v2: '≥0,6 cm/mes', accent: alerts ? 'accent-red' : '' },
+      { k: 'Con algún rojo', v: reds, v2: 'graso, Σ8 o asimetría', accent: reds ? 'accent-red' : '' },
+    ];
+    document.getElementById('obKpiRow').innerHTML = kpis.map(k => `<div class="kpi ${k.accent}"><div class="k">${k.k}</div><div class="v">${k.v}${k.unit ? '<small>' + k.unit + '</small>' : ''}</div>${k.v2 ? `<div class="v2" style="font-size:10.5px;">${k.v2}</div>` : ''}</div>`).join('');
+  });
+  renderSafe('obGoals', () => {
+    document.getElementById('obGoals').innerHTML = OBJ_GOALS.map(g => `
+      <div class="ob-card">
+        <div class="n">${g.n}</div><h3>${g.t}</h3>
+        <ul>${g.li.map(x => `<li>${x}</li>`).join('')}</ul>
+        <div class="kpi-line">${g.kpi()}</div>
+      </div>`).join('');
+  });
+  renderSafe('obBaremos', () => {
+    const f = (v) => fmt(v, 1);
+    const rows = [
+      { ind: 'Velocidad de crecimiento', sub: 'Δ altura entre mediciones, en cm/mes (pestaña PHV).', src: ['club', 'Criterio RCF'],
+        g: `&lt; ${BAREMOS.growthMonth} cm/mes (&lt; ${(BAREMOS.growthMonth * 12).toFixed(1).replace('.', ',')} cm/año)`, a: `≥ ${BAREMOS.growthMonth} cm/mes: alerta PHV → Sever (antes de PHV) o rodilla (cerca/en PHV); técnica motriz y menos volumen de COD / ACC / DECC`, r: 'Después de PHV con crecimiento ≥ 7,2 cm/año: tratar como riesgo' },
+      { ind: 'Altura vs. su categoría', sub: 'Percentil dentro de su categoría (corte transversal).', src: ['int', 'Referencia interna'],
+        g: `P${BAREMOS.pctLo}–P${BAREMOS.pctHi}`, a: `Fuera de P${BAREMOS.pctLo}–P${BAREMOS.pctHi}: vigilar maduración temprana o tardía (no es un diagnóstico)`, r: 'No aplica: solo se usa para priorizar el seguimiento' },
+      { ind: '% graso estimado', sub: 'Slaughter et al. (1988): tríceps + pierna medial, fórmula masculina.', src: ['lit', 'Literatura + criterio'],
+        g: `≤ ${BAREMOS.fatOk}% (≈ media + 1 DT de academias U13-U14: U13 ${BAREMOS.fatRef.U13[0]} ± ${BAREMOS.fatRef.U13[1]}%, U14 ${BAREMOS.fatRef.U14[0]} ± ${BAREMOS.fatRef.U14[1]}%)`, a: `${BAREMOS.fatOk}–${BAREMOS.fatRisk}%: vigilar, sin dietas restrictivas; revisar hábitos con el jugador`, r: `≥ ${BAREMOS.fatRisk}%: umbral de riesgo para la salud en chicos de 6-18 años` },
+      { ind: 'Σ8 pliegues (mm)', sub: `Suma de los 8 pliegues. Baremo interno con ${ref.n} registros de Infantil A + B.`, src: ['int', 'Referencia interna'],
+        g: ref.p75 != null ? `≤ ${f(ref.p75)} mm (hasta P75 de Infantil RCF)` : '—', a: ref.p90 != null ? `${f(ref.p75)}–${f(ref.p90)} mm (P75–P90)` : '—', r: ref.p90 != null ? `> ${f(ref.p90)} mm (por encima del P90)` : '—' },
+      { ind: 'Asimetrías (perímetros y rangos articulares)', sub: 'Diferencia D–I en % respecto a la media de ambos lados.', src: ['club', 'Criterio RCF'],
+        g: `&lt; ${BAREMOS.asymWarn}%`, a: `${BAREMOS.asymWarn}–${BAREMOS.asymRisk}%: vigilar`, r: `≥ ${BAREMOS.asymRisk}% (≥ 25% = alta): actuar` },
+      { ind: '30-15 IFT · VIFT (km/h)', sub: 'Capacidad intermitente. Aún no hay datos en RCF.', src: ['pend', 'Pendiente de datos'],
+        g: `≥ media de academias: U13 ${BAREMOS.vift.U13[0]} · U14 ${BAREMOS.vift.U14[0]} km/h`, a: `Entre media − 1 DT y la media (U13 ${f(BAREMOS.vift.U13[0] - BAREMOS.vift.U13[1])}–${BAREMOS.vift.U13[0]} · U14 ${f(BAREMOS.vift.U14[0] - BAREMOS.vift.U14[1])}–${BAREMOS.vift.U14[0]})`, r: `Por debajo de media − 1 DT` },
+      { ind: 'Salto (CMJ)', sub: 'VALD solo se ha medido en Juvenil A por ahora.', src: ['pend', 'Pendiente de datos'],
+        g: 'Sin baremo externo verificado: usar la evolución individual y el percentil dentro de la categoría', a: '—', r: '—' },
+    ];
+    document.getElementById('obBaremosBody').innerHTML = rows.map(r => `
+      <tr>
+        <td class="ind">${r.ind}<small>${r.sub}</small></td>
+        <td><div class="cell ${r.g === '—' ? 'n' : 'g'}">${r.g}</div></td>
+        <td><div class="cell ${r.a === '—' ? 'n' : 'a'}">${r.a}</div></td>
+        <td><div class="cell ${r.r === '—' || r.r.startsWith('No aplica') ? 'n' : 'r'}">${r.r}</div></td>
+        <td><span class="src-chip ${r.src[0]}">${r.src[1]}</span></td>
+      </tr>`).join('');
+    document.getElementById('obBaremosNote').textContent =
+      'Criterio RCF = definido por la coordinación (umbral PHV de 0,6 cm/mes, asimetrías). Literatura = valor de estudios citados abajo. Referencia interna = calculada con los datos de Infantil del propio club (se actualiza sola). Los valores están en un único bloque de código (BAREMOS) y se pueden ajustar.';
+  });
+  renderSafe('obSem', () => {
+    const cols = [['name', 'Jugador', ''], ['cat', 'Categoría', ''], ['fat', '% graso', 'c'], ['sum', 'Σ8 (mm)', 'c'], ['gr', 'Crec. cm/mes', 'c'], ['ht', 'Altura', 'c'], ['as', 'Asimetría máx.', 'c'], ['n', 'Rojos / ámbar', 'c']];
+    document.getElementById('obSemHead').innerHTML = '<tr>' + cols.map(c => `<th class="${c[2]}">${c[1]}</th>`).join('') + '</tr>';
+    const rows = list.map(p => {
+      const t = [
+        tlFat(p.hasPliegues ? p.pliegues.pctFatEst : null),
+        tlSum(p.hasPliegues ? p.pliegues.sumatorio : null, ref),
+        tlGrowth(p), tlHeight(p), tlAsym(p),
+      ];
+      return { p, t, r: t.filter(x => x[0] === 'r').length, a: t.filter(x => x[0] === 'a').length };
+    }).sort((x, y) => (y.r - x.r) || (y.a - x.a) || x.p.name.localeCompare(y.p.name));
+    document.getElementById('obSemBody').innerHTML = rows.map(({ p, t, r, a }) => `
+      <tr onclick="selectPlayer('${p.id}')">
+        <td class="name">${p.name}<span class="id">${p.id}</span></td>
+        <td><span class="cat-chip"><span class="cat-dot" style="background:${CAT_COLORS[p.anthro.categoria] || '#8d99a8'}"></span>${p.anthro.categoria}</span></td>
+        ${t.map(x => `<td class="c"><span class="tl ${x[0]}">${x[1]}</span></td>`).join('')}
+        <td class="c mono" style="font-size:12px;"><span style="color:${r ? 'var(--red)' : 'var(--text-faint)'}">${r}</span> / <span style="color:${a ? 'var(--amber)' : 'var(--text-faint)'}">${a}</span></td>
+      </tr>`).join('');
+    document.getElementById('obSemTag').textContent = `${rows.length} jugadores de Infantil`;
+  });
+  renderSafe('obSources', () => {
+    const src = [
+      ['lit', '<b>% graso:</b> Slaughter MH et al. (1988), <i>Skinfold equations for estimation of body fatness in children and youth</i>, Hum Biol 60:709-723. Ecuación tríceps + pierna medial para 8-18 años: chicos 0,735·Σ + 1,0; chicas 0,610·Σ + 5,1. <a href="https://www.topendsports.com/testing/bodyfat-equation-slaughter-lohman.htm" target="_blank" rel="noopener">topendsports.com</a>'],
+      ['lit', '<b>Umbral de 25% en chicos:</b> Williams et al. (1992), citado por ExRx.net: la salud puede empezar a verse afectada cuando el % graso supera el 25% en chicos de 6-18 años. <a href="https://exrx.net/Calculators/KidsBodyComp" target="_blank" rel="noopener">exrx.net</a>'],
+      ['lit', '<b>% graso en academias por edad</b> (U13 16,6 ± 5,2%; U14 15,8 ± 3,6%): estudio en jugadores de fútbol por categorías de edad, Asian Journal of Sports Medicine. El método de estimación del % graso de ese estudio puede diferir del de Slaughter; úsalo como orden de magnitud. <a href="https://brieflands.com/articles/asjsm-73650.pdf" target="_blank" rel="noopener">brieflands.com</a>'],
+      ['lit', '<b>30-15 IFT en academia:</b> VIFT U13 17,73 ± 1,24 y U14 18,14 ± 1,56 (km/h; el artículo no indica la unidad, es la habitual del test). <i>Contextual factors associated with the 30-15 IFT in a youth football academy</i>, Eur J Hum Movement 2024. <a href="https://eurjhm.com/index.php/eurjhm/article/download/865/783/6444" target="_blank" rel="noopener">eurjhm.com</a>'],
+      ['lit', '<b>PHV y lesiones por sobreuso:</b> PHV medio ≈13,5 años en chicos; en el entorno del PHV se describen 24,5 lesiones/1000 h frente a 11,5 antes del PHV (Johnson et al., citado en la revisión); recomendaciones de pliometría y de monitorizar el PHV. <i>Adolescent Soccer Overuse Injuries: A Review of Epidemiology, Risk Factors, and Management</i>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12470140" target="_blank" rel="noopener">PMC12470140</a>'],
+      ['club', '<b>Umbral de alerta PHV de 0,6 cm/mes</b> (7,2 cm/año), observaciones por etapa (Sever, rodilla) y umbrales de asimetría del 10 / 15%: criterio de trabajo de la coordinación RCF, no una norma externa.'],
+      ['int', '<b>Percentiles de altura y Σ8:</b> calculados con los propios datos de la cantera, no son normas poblacionales.'],
+    ];
+    document.getElementById('obSources').innerHTML = src.map(([k, t]) => `<div class="pl-note info"><span class="ic"><span class="src-chip ${k}" style="margin:0;">${k === 'lit' ? 'Lit.' : k === 'club' ? 'RCF' : 'Int.'}</span></span><span>${t}</span></div>`).join('') +
+      `<div class="pl-note warn"><span class="ic">⚠</span><span>No hay baremos externos verificados de CMJ ni de suma de pliegues para Infantil: por eso esos indicadores se leen con percentiles internos y evolución individual. Cuando el club tenga sus propios objetivos numéricos, se sustituyen en el bloque BAREMOS.</span></div>`;
+  });
+  document.getElementById('obUpdated').textContent = `Datos actualizados: ${TEAM.generatedAt}`;
+  document.getElementById('obFooter').textContent = `${list.length} jugadores de Infantil`;
+}
+
 // ------------------------------------------------------------
 // PDF EXPORT (browser print → guardar como PDF)
 // ------------------------------------------------------------
@@ -2120,7 +2435,14 @@ function setPrintHeader(subtitle) {
 }
 
 function exportTeamSection(sectionId, title) {
-  document.querySelectorAll('#teamView .tv-section, #pliegView .tv-section, #phvView .tv-section').forEach(el => {
+  if (currentTab === 'pliegues' || currentTab === 'objetivos') {
+    document.documentElement.classList.add('print-dark');
+    document.body.classList.add('print-dark');
+    let ps = document.getElementById('printPageStyle');
+    if (!ps) { ps = document.createElement('style'); ps.id = 'printPageStyle'; document.head.appendChild(ps); }
+    ps.textContent = '@page{size:A4 landscape;margin:8mm;}';
+  }
+  document.querySelectorAll('#teamView .tv-section, #pliegView .tv-section, #phvView .tv-section, #obView .tv-section').forEach(el => {
     el.classList.toggle('export-hide', sectionId !== 'all' && el.dataset.sectionId !== sectionId);
   });
   setPrintHeader(title);
@@ -2134,7 +2456,10 @@ function exportPlayerView() {
 }
 
 window.addEventListener('afterprint', () => {
-  document.querySelectorAll('#teamView .tv-section, #pliegView .tv-section, #phvView .tv-section').forEach(el => el.classList.remove('export-hide'));
+  document.documentElement.classList.remove('print-dark');
+  document.body.classList.remove('print-dark');
+  const ps = document.getElementById('printPageStyle'); if (ps) ps.textContent = '';
+  document.querySelectorAll('#teamView .tv-section, #pliegView .tv-section, #phvView .tv-section, #obView .tv-section').forEach(el => el.classList.remove('export-hide'));
 });
 document.addEventListener('DOMContentLoaded', () => {
   renderFilterBar();
