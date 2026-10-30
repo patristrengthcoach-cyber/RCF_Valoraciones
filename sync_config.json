@@ -13,6 +13,14 @@
     {
       "id": "1aKttzGn6k7ZfGHfwAhYbL_hKW-tapJ5bP3j2U1jamcg",
       "categoria": "Juvenil A"
+    },
+    {
+      "id": "1gRZurgFoYiR83R5pY0qBBLjTyGhmmJELqHCFuqAqIo8",
+      "categoria": "Cadete A"
     }
-  ]
+  ],
+  "alias_nombres": {
+    "Fabio": "RCF_068"
+  },
+  "_alias": "Equivalencias nombre→ID fijadas a mano para nombres que el Excel escribe incompleto (se aplican siempre)."
 }

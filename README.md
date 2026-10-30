@@ -23,9 +23,9 @@ Cada vez que alguien abre la app (como mucho cada 10 min) se lee Drive y se apli
 - **Medición completa** (perímetros, dorsiflexión, rotaciones): además recalcula asimetrías y avisos de riesgo.
 - **Jugador que no estaba**: se crea con el nombre y equipo del roster (`ID_JUGADOR_RCF`).
 - **Nombres y equipo** del roster: se refrescan.
-- **Pliegues cutáneos** (*Infantil Pliegues* y *JUV_A Pliegues*): cada fila nueva actualiza Σ8, % graso y la pestaña
+- **Pliegues cutáneos** (*Infantil Pliegues*, *JUV_A Pliegues* y *Cadete A Pliegues*): cada fila nueva actualiza Σ8, % graso y la pestaña
   Pliegues. Si el Excel trae **ID** (RCF_xxx) se usa tal cual; si solo trae **nombre** (como Infantil), el nombre se
-  asocia solo al ID del roster (nombre exacto → sin tildes/espacios → apellidos de menos → parecido muy alto). Los
+  asocia solo al ID del roster (nombre exacto → sin tildes/espacios → menos apellidos → erratas pequeñas como «Alfionso»). Los
   vinculados de forma aproximada se marcan con ❓ y se listan en las notas de la pestaña. Si el archivo trae
   **Altura**, también actualiza la altura/crecimiento/PHV, y si el jugador no existe se crea con el nombre y equipo del roster.
   La fecha puede estar en una columna «Fecha», en la cabecera (p. ej. `28-09-2026 Nombre`) o en una fila superior.
@@ -37,8 +37,10 @@ hojas la fecha puede ir solo en la primera fila (se arrastra hacia abajo); en Al
 
 **Nombres repetidos.** Si el roster tiene el mismo nombre bajo dos IDs (p. ej. RCF_039 y RCF_193, RCF_084 y RCF_194,
 o varios Alevín) se consideran **personas distintas**: no se renombran ni se vinculan por nombre (solo por ID, o si la
-categoría del archivo desempata). Aparece un aviso en la pestaña de datos hasta que se diferencien en el roster. Una
-fila de pliegues con ese nombre y sin ID queda sin integrar (con aviso) hasta que le pongas el ID.
+categoría del archivo desempata, o si solo uno de los IDs figura ya en el dashboard con ese nombre; en ese caso se marca con ❓). Aparece un aviso en la pestaña de datos hasta que se diferencien en el roster. Una
+fila de pliegues con un nombre que no se puede resolver (repetido, sin apellidos como «Fabio», o inexistente) queda sin
+integrar, con aviso y una sugerencia, hasta que le pongas el ID o el nombre completo.
+También puedes fijar la equivalencia a mano en `sync_config.json`, sección `alias_nombres` (p. ej. `"Fabio": "RCF_068"`).
 
 **Lo que NO es automático**: los tests **VALD** (siguen siendo carga manual: pídeme "actualiza los datos").
 
@@ -49,7 +51,7 @@ fila de pliegues con ese nombre y sin ID queda sin integrar (con aviso) hasta qu
    en la cuenta: *Claves* → *Agregar clave* → JSON (se descarga un `.json`).
 2. **Comparte los archivos de Drive** con el email de la cuenta de servicio (`...@...iam.gserviceaccount.com`) como
    **Lector**: *Registro Valoraciones 1.1 - RCF Cantera*, *JUV_A_Registro Valoraciones 1.1 - RCF Cantera*, *ID_JUGADOR_RCF*,
-   *Infantil Pliegues* y *JUV_A Pliegues*. (Si añades otro Excel de pliegues, compártelo igual y agrégalo a `sync_config.json`.)
+   *Infantil Pliegues*, *JUV_A Pliegues* y *Cadete A Pliegues*. (Si añades otro Excel de pliegues, compártelo igual y agrégalo a `sync_config.json`.)
 3. **Streamlit Community Cloud** → tu app → *Settings* → *Secrets* → pega (copiando los valores del `.json`):
 
    ```toml

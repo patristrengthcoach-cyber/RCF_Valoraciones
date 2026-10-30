@@ -55,7 +55,7 @@ def build_dashboard():
                 pls.append((S.drive_download_xlsx(x["id"], sa), x.get("categoria")))
             except Exception as e:
                 avisos.append(f"Pliegues {x.get('categoria') or x['id']}: {type(e).__name__}: {e}")
-        new_html, changes = S.run(html, regs, roster, stamp=True, pliegues=pls)
+        new_html, changes = S.run(html, regs, roster, stamp=True, pliegues=pls, aliases=cfg.get("alias_nombres"))
         return new_html, changes, None, avisos
     except Exception as e:  # nunca dejar la app sin datos por un fallo de Drive
         return html, [], f"{type(e).__name__}: {e}", []

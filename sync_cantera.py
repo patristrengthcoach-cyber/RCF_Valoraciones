@@ -356,7 +356,8 @@ class Resolver:
     Un nombre que el roster repite bajo ≥2 IDs NUNCA se vincula por nombre (salvo que la categoría
     del archivo desempate): se mantienen como personas distintas."""
 
-    def __init__(self, data, roster):
+    def __init__(self, data, roster, aliases=None):
+        self.alias = {norm(k): v for k, v in (aliases or {}).items()}
         self.P = {p['id']: p for p in data['players']}
         self.names, self.cats, self.eff = {}, {}, {}
         for p in data['players']:
@@ -391,34 +392,88 @@ class Resolver:
         hn = norm(hint)
         return any(c.startswith(hn) for c in self.cats.get(pid, ()))
 
-    def _pick(self, ids, hint):
+    def _pick(self, ids, hint, match=None):
+        """Desempata varios IDs candidatos: 1º por la categoría del archivo; 2º por el nombre que YA tiene el
+        dashboard (si solo uno de los IDs figura allí con ese nombre)."""
         ids = set(ids)
         if len(ids) > 1 and hint:
             f = {i for i in ids if self.cat_ok(i, hint)}
             if f:
                 ids = f
+        if len(ids) > 1 and match:
+            f = {i for i in ids if i in self.P and not self.P[i].get('isUnresolvedId') and match(self.P[i]['name'])}
+            if len(f) == 1:
+                ids = f
         return ids
 
+    @staticmethod
+    def _tok_close(a, b):
+        if a == b:
+            return True
+        if len(a) < 5 or len(b) < 5 or a[0] != b[0]:
+            return False
+        return difflib.SequenceMatcher(None, a, b).ratio() >= 0.75
+
+    def _fuzzy_subset(self, toks):
+        """Ids cuyo nombre contiene todas las palabras de `toks`, tolerando erratas (Alfionso ~ Alfonso)."""
+        out = {}
+        for k, ids in self.by_key.items():
+            rest = list(k)
+            ok = True
+            for t in toks:
+                m = next((r for r in rest if self._tok_close(t, r)), None)
+                if m is None:
+                    ok = False
+                    break
+                rest.remove(m)
+            if ok:
+                for i in ids:
+                    out[i] = k
+        return out
+
+    def suggest(self, raw, n=3):
+        toks = norm(raw).split()
+        if not toks:
+            return []
+        hit = self._fuzzy_subset(toks)
+        return sorted(hit)[:n]
+
     def lookup(self, raw, hint=None):
-        """-> (id|None, how, candidatos). how: 'roster' (nombre exacto) | 'name' (aproximado) | 'ambiguo' | 'sin_coincidencia'."""
+        """-> (id|None, how, candidatos). how: 'roster' (nombre exacto o con menos apellidos) | 'name' (con erratas / aproximado) | 'ambiguo' | 'sin_coincidencia'."""
         toks = norm(raw).split()
         if not toks:
             return None, 'sin_coincidencia', []
+        if ' '.join(toks) in self.alias:                   # equivalencia fijada a mano en sync_config.json
+            return self.alias[' '.join(toks)], 'roster', []
         key = tuple(sorted(toks))
-        stages = [('roster', self.by_key.get(key, set())), ('roster', self.by_flat.get(''.join(toks), set()))]
+        flat = ''.join(toks)
+        same = lambda n: tuple(sorted(norm(n).split())) == key
+        sameflat = lambda n: ''.join(norm(n).split()) == flat
+        sub = lambda n: set(toks) <= set(norm(n).split())
+        stages = [('roster', self.by_key.get(key, set()), same), ('roster', self.by_flat.get(flat, set()), sameflat)]
         if len(toks) >= 2:                                 # escribió menos apellidos que el roster
-            stages.append(('name', {i for k, ids in self.by_key.items() if set(toks) <= set(k) for i in ids}))
-        for how, ids in stages:
+            stages.append(('roster', {i for k, ids in self.by_key.items() if set(toks) <= set(k) for i in ids}, sub))
+        for how, ids, match in stages:
             if not ids:
                 continue
-            ids = self._pick(ids, hint)
+            ids = self._pick(ids, hint, match)
             if len(ids) == 1:
                 return next(iter(ids)), how, []
             return None, 'ambiguo', sorted(ids)
+        if len(toks) >= 2:                                 # erratas en alguna palabra
+            hit = self._fuzzy_subset(toks)
+            if hit:
+                keys = set(hit.values())
+                ids = self._pick(set(hit), hint, lambda n: tuple(sorted(norm(n).split())) in keys)
+                if len(ids) == 1:
+                    return next(iter(ids)), 'name', []
+                return None, 'ambiguo', sorted(ids)
         keys = [' '.join(k) for k in self.by_key]
         close = difflib.get_close_matches(' '.join(key), keys, n=2, cutoff=0.88)
         if len(close) == 1:
-            ids = self._pick({i for k, v in self.by_key.items() if ' '.join(k) == close[0] for i in v}, hint)
+            ck = tuple(close[0].split())
+            ids = self._pick({i for k, v in self.by_key.items() if k == ck for i in v}, hint,
+                             lambda n: tuple(sorted(norm(n).split())) == ck)
             if len(ids) == 1:
                 return next(iter(ids)), 'name', []
         return None, 'sin_coincidencia', []
@@ -523,7 +578,7 @@ def _pl_record_from_player(p):
                 **{k: q[k] for k in FOLDS}, sum8=q['sumatorio'], pctFat=q['pctFatEst'], matchedBy=q['matchedBy'])
 
 
-def sync(data, registro_list, roster, log=print, pliegues=None):
+def sync(data, registro_list, roster, log=print, pliegues=None, aliases=None):
     """Modifica `data` in situ. Devuelve lista de cambios (texto).
     registro_list: filas de read_registro; pliegues: filas de read_pliegues."""
     T = data['team']
@@ -546,7 +601,7 @@ def sync(data, registro_list, roster, log=print, pliegues=None):
             return True
         return False
 
-    RS = Resolver(data, roster)
+    RS = Resolver(data, roster, aliases)
     cats_norm = {norm(c): c for c in T['categorias']}
 
     # --- roster: nombre / equipo de los jugadores que ya existen
@@ -576,11 +631,13 @@ def sync(data, registro_list, roster, log=print, pliegues=None):
         else:
             rid, how, cand = RS.lookup(w['name'], hint)
             if rid is None:
-                where = f'«{w["name"]}» ({w["sheet"]}, {fmt_date(w["fecha"])})'
+                where = f'«{w["name"]}» ({w["hint"] or w["sheet"]}, {fmt_date(w["fecha"])})'
                 if how == 'ambiguo':
                     pl_skipped.append(('warn', f'Pliegues {where}: el nombre coincide con varios IDs ({", ".join(cand)}) — no se ha vinculado. Pon su ID RCF_xxx en el Excel de pliegues.'))
                 else:
-                    pl_skipped.append(('warn', f'Pliegues {where}: no se encuentra en el roster — no se ha integrado. Pon su ID RCF_xxx (o corrige el nombre) en el Excel de pliegues.'))
+                    sug = RS.suggest(w['name'])
+                    hint_txt = (' ¿Será ' + ' o '.join(f'{i} {RS.display(i)}' for i in sug) + '?') if sug else ''
+                    pl_skipped.append(('warn', f'Pliegues {where}: no se encuentra en el roster — no se ha integrado.{hint_txt} Pon su ID RCF_xxx (o el nombre completo) en el Excel de pliegues.'))
                 continue
         pl_items.append((w, rid, how))
 
@@ -882,7 +939,7 @@ def dump_html(html, m, data):
     return html[:m.start(2)] + ds + html[m.end(2):]
 
 
-def run(html_text, registros, roster, log=print, stamp=False, pliegues=None):
+def run(html_text, registros, roster, log=print, stamp=False, pliegues=None, aliases=None):
     """registros: lista de bytes/paths de Excel; roster: bytes/path o None;
     pliegues: lista de (bytes/path, categoría_pista) de los Excel de pliegues.
     Devuelve (html_nuevo|None, cambios). Con stamp=True, aunque no haya cambios devuelve el HTML con la
@@ -895,7 +952,7 @@ def run(html_text, registros, roster, log=print, stamp=False, pliegues=None):
     pl_rows = []
     for src, hint in pliegues or []:
         pl_rows += read_pliegues(io.BytesIO(src) if isinstance(src, (bytes, bytearray)) else src, hint, log)
-    changes = sync(data, rows, ros, log, pliegues=pl_rows)
+    changes = sync(data, rows, ros, log, pliegues=pl_rows, aliases=aliases)
     if not changes and not stamp:
         return None, []
     if stamp:
@@ -915,6 +972,7 @@ def main():
     a = ap.parse_args()
     html = open(a.html, encoding='utf-8').read()
     regs, roster = list(a.registro), a.roster
+    aliases = None
     pls = [tuple((x.rsplit('=', 1) + [None])[:2]) if '=' in x else (x, None) for x in a.pliegues]
     if a.config:
         cfg = json.load(open(a.config))
@@ -925,7 +983,8 @@ def main():
         regs = [drive_download_xlsx(i, sa) for i in cfg['registro_ids']]
         roster = drive_download_xlsx(cfg['roster_id'], sa) if cfg.get('roster_id') else None
         pls = [(drive_download_xlsx(x['id'], sa), x.get('categoria')) for x in cfg.get('pliegues', [])]
-    new_html, changes = run(html, regs, roster, pliegues=pls)
+        aliases = cfg.get('alias_nombres')
+    new_html, changes = run(html, regs, roster, pliegues=pls, aliases=aliases)
     if not new_html:
         print('Sin cambios: el dashboard ya está al día.')
         return 0
